@@ -100,6 +100,10 @@ export default function Home() {
     {
       icon: "fab fa-github",
       link: "https://github.com/jonathan-kofman"
+    },
+    {
+      icon: "fas fa-podcast",
+      link: "https://www.guidience.com"
     }
   ]
 
