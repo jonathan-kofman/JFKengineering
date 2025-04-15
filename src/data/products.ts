@@ -1,20 +1,62 @@
-import { Product } from '@/types/product';
+// File: data/products.ts
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  category: 'toys' | 'jewelry' | 'household';
+}
 
 export const products: Product[] = [
   {
-    id: 'articulated-dragon',
-    name: 'Articulated Dragon',
-    description: 'A beautifully designed articulated dragon that can be posed in various positions. Perfect for display or as a unique gift. Made from high-quality PLA filament.',
-    price: 5.00,
-    imageUrl: '/assets/Articulated_dragon.jpg',
-    category: 'Articulated Models'
+    id: 1,
+    name: "Mini Robot Figurine",
+    description: "A cute desk companion for tech enthusiasts",
+    price: 19.99,
+    imageUrl: "/images/products/robot.jpg",
+    category: "toys"
   },
   {
-    id: 'self-watering-planter',
-    name: 'Self-Watering Planter',
-    description: 'A practical and stylish self-watering planter that helps maintain optimal moisture levels for your plants. Features a water reservoir and wicking system. Made from durable PLA material.',
-    price: 5.00,
-    imageUrl: '/assets/self-watering-planter.jpg',
-    category: 'Planters'
-  }
-]; 
+    id: 2,
+    name: "Geometric Puzzle Cube",
+    description: "Challenge your mind with this 3D printed puzzle",
+    price: 24.99,
+    imageUrl: "/images/products/puzzle.jpg",
+    category: "toys"
+  },
+  {
+    id: 3,
+    name: "DNA Helix Earrings",
+    description: "Science-inspired jewelry for the modern intellectual",
+    price: 29.99,
+    imageUrl: "/images/products/earrings.jpg",
+    category: "jewelry"
+  },
+  {
+    id: 4,
+    name: "Molecular Necklace",
+    description: "Custom molecule structure pendant on a silver chain",
+    price: 34.99,
+    imageUrl: "/images/products/necklace.jpg",
+    category: "jewelry"
+  },
+  {
+    id: 5,
+    name: "Phone Stand",
+    description: "Ergonomic design to hold your phone at the perfect angle",
+    price: 14.99,
+    imageUrl: "/images/products/phone-stand.jpg",
+    category: "household"
+  },
+  {
+    id: 6,
+    name: "Cable Organizer",
+    description: "Keep your desk tidy with this sleek cable management solution",
+    price: 9.99,
+    imageUrl: "/images/products/cable-organizer.jpg",
+    category: "household"
+  },
+  // Add more products as needed
+]

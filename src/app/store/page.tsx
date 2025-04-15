@@ -3,9 +3,55 @@
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { products } from "@/data/products"
+import { useState, useEffect } from "react"
+import { products, Product } from "@/data/products"
 
 export default function Store() {
+  // Define the type for category
+  type Category = 'all' | 'toys' | 'jewelry' | 'household';
+  
+  // State to track the active category
+  const [activeCategory, setActiveCategory] = useState<Category>('all');
+  
+  // State to track filtered products
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  
+  // State to track items in cart
+  const [cartItems, setCartItems] = useState<Product[]>([]);
+
+  // Function to handle category change
+  const handleCategoryChange = (category: Category) => {
+    console.log("Category changed to:", category);
+    setActiveCategory(category);
+  };
+  
+  // Function to add product to cart
+  const addToCart = (product: Product) => {
+    setCartItems([...cartItems, product]);
+    console.log(`Added ${product.name} to cart`);
+  };
+  
+  // Function to handle checkout
+  const handleCheckout = () => {
+    // Store cart items in localStorage to access them on the cart page
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    // Navigate to cart page
+    window.location.href = '/cart';
+  };
+
+  // Update filtered products when activeCategory changes
+  useEffect(() => {
+    if (activeCategory === 'all') {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(product => product.category === activeCategory);
+      setFilteredProducts(filtered);
+    }
+  }, [activeCategory]);
+
+  // Categories array
+  const categories: Category[] = ['all', 'toys', 'jewelry', 'household'];
+
   return (
     <div className="font-sans bg-gradient-to-b from-slate-900 to-slate-800 text-gray-100 min-h-screen">
       <header className="relative min-h-screen flex items-center justify-center">
@@ -78,43 +124,45 @@ export default function Store() {
               transition={{ delay: 1 }}
               className="inline-block mt-6 px-6 py-3 bg-[#F1641E] text-white rounded-full font-semibold hover:bg-[#E55C18] transition-colors"
             >
-              <i className="fab fa-etsy mr-2"></i>
-              Visit Our Etsy Shop
+              Visit Our Shop
             </motion.a>
           </motion.div>
 
-          {/* Best Sellers Section */}
-          <div className="mb-12 text-center">
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-4xl font-bold mb-4 gradient-text"
-            >
-              Best Sellers
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-gray-400 text-lg mb-8"
-            >
-              Check out our most popular items below, or visit our{" "}
-              <a
-                href="https://www.etsy.com/shop/YourShopName"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#F1641E] hover:text-[#E55C18] transition-colors underline"
-              >
-                Etsy shop
-              </a>
-              {" "}for our complete collection of unique 3D printed designs.
-            </motion.p>
+          {/* Category Tabs - FIXED VERSION */}
+          <div className="mb-12">
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
+              {categories.map((category) => (
+                <div key={category} className="relative z-10">
+                  <button
+                    onClick={() => handleCategoryChange(category)}
+                    className={`px-5 py-2 rounded-full font-medium text-lg transition-all duration-300 cursor-pointer ${
+                      activeCategory === category
+                        ? "bg-blue-500 text-white"
+                        : "bg-slate-800 text-gray-300 hover:bg-slate-700"
+                    }`}
+                  >
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* Cart Section */}
+          {cartItems.length > 0 && (
+            <div className="fixed bottom-8 right-8 z-50">
+              <button
+                onClick={handleCheckout}
+                className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition-colors shadow-lg"
+              >
+                <span>Checkout ({cartItems.length})</span>
+              </button>
+            </div>
+          )}
 
           {/* Products Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -134,20 +182,21 @@ export default function Store() {
                 <div className="p-6 bg-gradient-to-b from-slate-800/30 to-slate-900/30">
                   <h3 className="text-xl font-bold mb-2">{product.name}</h3>
                   <p className="text-gray-400 mb-4">{product.description}</p>
+                  <p className="text-sm text-gray-500 mb-4">Category: {product.category}</p>
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <span className="text-2xl font-bold text-blue-400">
                       ${product.price.toFixed(2)}
                     </span>
-                    <motion.a
-                      href="https://www.etsy.com/shop/YourShopName"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        addToCart(product);
+                      }}
                       className="px-4 py-2 bg-[#F1641E] text-white rounded-full font-semibold hover:bg-[#E55C18] transition-colors"
                     >
-                      Buy on Etsy
-                    </motion.a>
+                      Buy Now
+                    </a>
                   </div>
                 </div>
               </motion.div>
@@ -182,7 +231,7 @@ export default function Store() {
               <div>
                 <p className="text-xl text-gray-300">Shop</p>
                 <a 
-                  href="https://www.etsy.com/shop/YourShopName" //Update with actual Etsy shop link
+                  href="https://www.etsy.com/shop/YourShopName" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-2xl font-semibold text-[#F1641E] hover:text-[#E55C18] transition-colors"
@@ -199,4 +248,4 @@ export default function Store() {
       </header>
     </div>
   )
-} 
+}
