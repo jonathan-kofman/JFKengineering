@@ -2,8 +2,8 @@
 
 import Image from "next/image"
 // Removed unused Link import
-import { useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState, useEffect, useRef, useMemo } from "react"
+import { motion } from "framer-motion"
 import Gallery from "@/components/gallery"
 
 // Define types for the tab content
@@ -41,8 +41,8 @@ export default function Home() {
   const particlesRef = useRef<HTMLDivElement>(null)
   const iconsRef = useRef<HTMLDivElement>(null)
 
-  // Define background icons
-  const backgroundIcons: BackgroundIcon[] = [
+  // Wrap backgroundIcons in useMemo to avoid recreating on every render
+  const backgroundIcons = useMemo<BackgroundIcon[]>(() => [
     // Jet/Airplane icons
     {
       svg: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -217,7 +217,7 @@ export default function Home() {
       animationDuration: '18s',
       rotation: '25deg'
     }
-  ]
+  ], []);
 
   // Handle scroll for active section highlighting
   useEffect(() => {
@@ -349,7 +349,7 @@ export default function Home() {
       // Add to container
       container.appendChild(iconElement)
     })
-  }, [backgroundIcons]) // Added backgroundIcons to dependency array
+  }, [backgroundIcons]) // Now using the memoized backgroundIcons
 
   // Animation variants
   const fadeIn = {
@@ -648,22 +648,20 @@ export default function Home() {
                   ))}
                 </div>
 
-                <AnimatePresence mode="wait">
-                  <motion.div 
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                    className="hover-card p-6 rounded-lg"
-                  >
-                    <h3 className="text-xl font-bold mb-2 text-white">
-                      {tabContent[activeTab].title}
-                    </h3>
-                    <p className="text-gray-400 mb-4">{tabContent[activeTab].date}</p>
-                    <p className="text-gray-300">{tabContent[activeTab].content}</p>
-                  </motion.div>
-                </AnimatePresence>
+                <motion.div 
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="hover-card p-6 rounded-lg"
+                >
+                  <h3 className="text-xl font-bold mb-2 text-white">
+                    {tabContent[activeTab].title}
+                  </h3>
+                  <p className="text-gray-400 mb-4">{tabContent[activeTab].date}</p>
+                  <p className="text-gray-300">{tabContent[activeTab].content}</p>
+                </motion.div>
               </div>
             </div>
           </div>
@@ -699,9 +697,9 @@ export default function Home() {
               variants={staggerChildren}
               className="flex justify-center space-x-8"
             >
-              {socialLinks.map((social, index) => (
+              {socialLinks.map((social) => (
                 <motion.a
-                  key={index}
+                  key={social.link}
                   variants={fadeIn}
                   whileHover={{ scale: 1.1 }}
                   href={social.link}
