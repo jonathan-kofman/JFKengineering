@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
+// Removed unused Link import
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Gallery from "@/components/gallery"
@@ -319,7 +319,7 @@ export default function Home() {
     const container = iconsRef.current
     container.innerHTML = ''
     
-    backgroundIcons.forEach((icon, index) => {
+    backgroundIcons.forEach((icon) => {
       const iconElement = document.createElement('div')
       
       // Set position
@@ -349,7 +349,7 @@ export default function Home() {
       // Add to container
       container.appendChild(iconElement)
     })
-  }, [])
+  }, [backgroundIcons]) // Added backgroundIcons to dependency array
 
   // Animation variants
   const fadeIn = {
