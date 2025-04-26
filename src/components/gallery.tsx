@@ -13,6 +13,7 @@ interface MediaItem {
 }
 
 const galleryMedia: MediaItem[] = [
+  // Original items
   {
     type: 'image',
     src: "/assets/scarlet-flight.png",
@@ -47,13 +48,13 @@ const galleryMedia: MediaItem[] = [
     type: 'video',
     src: "/assets/watertank.mp4",
     alt: "Injector for liquid rocket engine",
-    caption: "Injector for liquid rocket engine",
+    caption: "Injector for liquid rocket engine"
   },
   {
     type: 'video',
     src: "/assets/weld.mp4",
     alt: "Me welding practice components",
-    caption: "Me welding practice components",
+    caption: "Me welding practice components"
   },
   {
     type: 'image',
@@ -67,6 +68,8 @@ const galleryMedia: MediaItem[] = [
     alt: "Lab Work",
     caption: "Robodog gear"
   },
+  
+  // Original items continued
   {
     type: 'image',
     src: "/assets/joninplane.png",
@@ -89,13 +92,99 @@ const galleryMedia: MediaItem[] = [
     type: 'video',
     src: "/assets/liquidrocket.mp4",
     alt: "Multi-stage water rocket testing",
-    caption: "Multi-stage Water Rocket testing",
+    caption: "Multi-stage Water Rocket testing"
   },
   {
     type: 'video',
     src: "/assets/cad.mp4",
     alt: "Solenoid mount cad design",
-    caption: "Solenoid mount CAD design",
+    caption: "Solenoid mount CAD design"
+  },
+  
+  // New assets
+  {
+    type: 'image',
+    src: "/assets/bottom_injector.jpg",
+    alt: "Bottom Injector",
+    caption: "Bottom injector design for liquid rocket engine"
+  },
+  {
+    type: 'image',
+    src: "/assets/burnt_out.jpg",
+    alt: "Burnt Out Component",
+    caption: "Burnt out rocket engine component after testing"
+  },
+  {
+    type: 'image',
+    src: "/assets/engine.jpg",
+    alt: "Rocket Engine",
+    caption: "Assembled rocket engine design"
+  },
+  {
+    type: 'video',
+    src: "/assets/HOT_FIRE.MOV",
+    alt: "Hot Fire Test",
+    caption: "Hot fire testing of rocket engine"
+  },
+  {
+    type: 'image',
+    src: "/assets/injector_assem.jpg",
+    alt: "Injector Assembly",
+    caption: "Injector assembly process"
+  },
+  {
+    type: 'image',
+    src: "/assets/liq_nitrogen.jpg",
+    alt: "Liquid Nitrogen",
+    caption: "Working with liquid nitrogen for rocket cooling"
+  },
+  {
+    type: 'image',
+    src: "/assets/LRE_leads.JPEG",
+    alt: "LRE Team Leads",
+    caption: "Liquid Rocket Engine team leads"
+  },
+  {
+    type: 'image',
+    src: "/assets/machining_nozzle.jpg",
+    alt: "Machining Nozzle",
+    caption: "CNC machining a rocket nozzle"
+  },
+  {
+    type: 'video',
+    src: "/assets/machining.MP4",
+    alt: "Machining Process",
+    caption: "CNC machining process for rocket components"
+  },
+  {
+    type: 'image',
+    src: "/assets/Nozzle.jpg",
+    alt: "Rocket Nozzle",
+    caption: "Finished rocket nozzle design"
+  },
+  {
+    type: 'image',
+    src: "/assets/team_pic.JPEG",
+    alt: "Engineering Team",
+    caption: "The engineering team behind the project"
+  },
+  {
+    type: 'image',
+    src: "/assets/top_injector.jpg",
+    alt: "Top Injector",
+    caption: "Top injector design for liquid rocket engine"
+  },
+  {
+    type: 'image',
+    src: "/assets/top_plate_fresh.jpg",
+    alt: "Fresh Top Plate",
+    caption: "Newly machined top plate component"
+  },
+  {
+    type: 'image',
+    src: "/assets/top_plate_top.jpg",
+    alt: "Top Plate View",
+    caption: "Top-down view of the rocket top plate"
   }
 ]
 
@@ -154,7 +243,7 @@ export default function Gallery() {
   // Log state changes for debugging
   useEffect(() => {
     console.log('showAll state changed:', showAll)
-    console.log('Number of items shown:', showAll ? galleryMedia.length : 9)
+    console.log('Number of items shown:', showAll ? galleryMedia.length : 12)
   }, [showAll])
 
   // Scroll to newly loaded images when showing all
@@ -198,9 +287,6 @@ export default function Gallery() {
       [videoSrc]: thumbnail
     }))
   }
-
-  // We don't need the displayMedia variable anymore as we're 
-  // directly using galleryMedia.slice() in the render methods
 
   const renderThumbnail = (item: MediaItem, isPriority: boolean = false) => {
     if (item.type === 'image') {
@@ -287,7 +373,7 @@ export default function Gallery() {
           Engineering Gallery
         </motion.h2>
 
-        {/* Initial 9 images */}
+        {/* Initial 12 images */}
         <motion.div 
           initial="hidden"
           whileInView="visible"
@@ -295,7 +381,7 @@ export default function Gallery() {
           variants={staggerChildren}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {galleryMedia.slice(0, 9).map((item, index) => (
+          {galleryMedia.slice(0, 12).map((item, index) => (
             <motion.div
               key={`initial-media-${index}`}
               variants={fadeIn}
@@ -321,7 +407,7 @@ export default function Gallery() {
             variants={staggerChildren}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12"
           >
-            {galleryMedia.slice(9).map((item, index) => (
+            {galleryMedia.slice(12).map((item, index) => (
               <motion.div
                 key={`additional-media-${index}`}
                 variants={fadeIn}
@@ -341,7 +427,7 @@ export default function Gallery() {
         )}
 
         {/* Show more button - only visible when not showing all images */}
-        {!showAll && galleryMedia.length > 9 && (
+        {!showAll && galleryMedia.length > 12 && (
           <div className="flex justify-center mt-12">
             <button
               ref={showMoreButtonRef}
