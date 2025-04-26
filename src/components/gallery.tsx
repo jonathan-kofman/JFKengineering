@@ -18,7 +18,7 @@ const galleryMedia: MediaItem[] = [
     type: 'image',
     src: "/assets/scarlet-flight.png",
     alt: "scarlet-flight",
-    caption: "Working on Scarlet-Flight rocket"
+    caption: "Capstone Project Expo"
   },
   {
     type: 'video',
@@ -63,6 +63,12 @@ const galleryMedia: MediaItem[] = [
     caption: "Injector for liquid rocket engine"
   },
   {
+    type: 'image',
+    src: "/assets/burnt_out.jpg",
+    alt: "Burnt Out Component",
+    caption: "Burnt out rocket engine component after testing"
+  },
+  {
     type: 'video',
     src: "/assets/weld.mp4",
     alt: "Me welding practice components",
@@ -73,12 +79,6 @@ const galleryMedia: MediaItem[] = [
     src: "/assets/fullsizerender.png",
     alt: "Full size render",
     caption: "Senior Design Poster for Water Rocket"
-  },
-  {
-    type: 'image',
-    src: "/assets/gear.png",
-    alt: "Lab Work",
-    caption: "Robodog gear"
   },
   {
     type: 'image',
@@ -123,12 +123,6 @@ const galleryMedia: MediaItem[] = [
     src: "/assets/bottom_injector.jpg",
     alt: "Bottom Injector",
     caption: "Bottom injector design for liquid rocket engine"
-  },
-  {
-    type: 'image',
-    src: "/assets/burnt_out.jpg",
-    alt: "Burnt Out Component",
-    caption: "Burnt out rocket engine component after testing"
   },
   {
     type: 'image',

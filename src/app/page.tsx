@@ -675,6 +675,7 @@ export default function Home() {
           <Gallery />
         </section>
 
+
         {/* Contact Section */}
         <section id="contact" className="py-24 section">
           <div className="section-overlay"></div>
@@ -689,6 +690,30 @@ export default function Home() {
             >
               Contact Links
             </motion.h2>
+
+            {/* Added Contact Info Block */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={staggerChildren}
+              className="max-w-2xl mx-auto mb-12 text-gray-300"
+            >
+              <motion.div variants={fadeIn} className="mb-4">
+                <div className="flex items-center justify-center space-x-2 mb-2">
+                  <i className="fas fa-envelope text-blue-400"></i>
+                  <p><a href="mailto:jonkofm@hotmail.com" className="hover:text-blue-400 transition-colors">jonkofm@hotmail.com</a></p>
+                </div>
+                <div className="flex items-center justify-center space-x-2 mb-2">
+                  <i className="fas fa-envelope-open text-blue-400"></i>
+                  <p><a href="mailto:jfkengineeringcswp@gmail.com" className="hover:text-blue-400 transition-colors">jfkengineeringcswp@gmail.com</a></p>
+                </div>
+                <div className="flex items-center justify-center space-x-2">
+                  <i className="fas fa-phone text-blue-400"></i>
+                  <p><a href="tel:9087988082" className="hover:text-blue-400 transition-colors">(908)-798-8082</a></p>
+                </div>
+              </motion.div>
+            </motion.div>
 
             <motion.div 
               initial="hidden"
