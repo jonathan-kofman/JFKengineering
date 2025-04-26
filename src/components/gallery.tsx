@@ -21,10 +21,16 @@ const galleryMedia: MediaItem[] = [
     caption: "Working on Scarlet-Flight rocket"
   },
   {
+    type: 'video',
+    src: "/assets/HOT_FIRE.MOV",
+    alt: "Hot Fire Test",
+    caption: "Hot fire testing of rocket engine"
+  },
+  {
     type: 'image',
-    src: "/assets/chassy.png",
-    alt: "Chassis from Rutgers' Formula Racing",
-    caption: "Chassis from Rutgers' Formula Racing"
+    src: "/assets/team_pic.JPEG",
+    alt: "Engineering Team",
+    caption: "The engineering team behind the project"
   },
   {
     type: 'image',
@@ -37,6 +43,12 @@ const galleryMedia: MediaItem[] = [
     src: "/assets/welding.png",
     alt: "Formula Racing",
     caption: "Welding practice for the Formula team"
+  },
+  {
+    type: 'image',
+    src: "/assets/LRE_leads.JPEG",
+    alt: "LRE Team Leads",
+    caption: "Liquid Rocket Engine team leads"
   },
   {
     type: 'image',
@@ -68,7 +80,12 @@ const galleryMedia: MediaItem[] = [
     alt: "Lab Work",
     caption: "Robodog gear"
   },
-  
+  {
+    type: 'image',
+    src: "/assets/gear.png",
+    alt: "Lab Work",
+    caption: "Robodog gear"
+  },
   // Original items continued
   {
     type: 'image',
@@ -100,7 +117,6 @@ const galleryMedia: MediaItem[] = [
     alt: "Solenoid mount cad design",
     caption: "Solenoid mount CAD design"
   },
-  
   // New assets
   {
     type: 'image',
@@ -121,12 +137,6 @@ const galleryMedia: MediaItem[] = [
     caption: "Assembled rocket engine design"
   },
   {
-    type: 'video',
-    src: "/assets/HOT_FIRE.MOV",
-    alt: "Hot Fire Test",
-    caption: "Hot fire testing of rocket engine"
-  },
-  {
     type: 'image',
     src: "/assets/injector_assem.jpg",
     alt: "Injector Assembly",
@@ -137,12 +147,6 @@ const galleryMedia: MediaItem[] = [
     src: "/assets/liq_nitrogen.jpg",
     alt: "Liquid Nitrogen",
     caption: "Working with liquid nitrogen for rocket cooling"
-  },
-  {
-    type: 'image',
-    src: "/assets/LRE_leads.JPEG",
-    alt: "LRE Team Leads",
-    caption: "Liquid Rocket Engine team leads"
   },
   {
     type: 'image',
@@ -161,12 +165,6 @@ const galleryMedia: MediaItem[] = [
     src: "/assets/Nozzle.jpg",
     alt: "Rocket Nozzle",
     caption: "Finished rocket nozzle design"
-  },
-  {
-    type: 'image',
-    src: "/assets/team_pic.JPEG",
-    alt: "Engineering Team",
-    caption: "The engineering team behind the project"
   },
   {
     type: 'image',
