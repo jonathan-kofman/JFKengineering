@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useState, useRef, useEffect } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface MediaItem {
   type: 'image' | 'video'
@@ -148,12 +148,38 @@ const VideoThumbnail = ({ src, onThumbnailGenerated }: { src: string, onThumbnai
 export default function Gallery() {
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null)
   const [videoThumbnails, setVideoThumbnails] = useState<Record<string, string>>({})
-  // Add state to control showing all images
   const [showAll, setShowAll] = useState(false)
+  const showMoreButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('showAll state changed:', showAll)
+    console.log('Number of items shown:', showAll ? galleryMedia.length : 9)
+  }, [showAll])
+
+  // Scroll to newly loaded images when showing all
+  useEffect(() => {
+    if (showAll && showMoreButtonRef.current) {
+      // Wait for the new content to render, then scroll
+      setTimeout(() => {
+        const yOffset = -100; // Offset to account for fixed header
+        if (showMoreButtonRef.current) {
+          const y = showMoreButtonRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  }, [showAll]);
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
   }
 
   const staggerChildren = {
@@ -161,7 +187,7 @@ export default function Gallery() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2
+        staggerChildren: 0.1 // Reduced stagger time for faster rendering
       }
     }
   }
@@ -173,12 +199,10 @@ export default function Gallery() {
     }))
   }
 
-  // Determine which items to display based on showAll state
-  const displayMedia = showAll 
-    ? galleryMedia 
-    : galleryMedia.slice(0, 9)
+  // We don't need the displayMedia variable anymore as we're 
+  // directly using galleryMedia.slice() in the render methods
 
-  const renderThumbnail = (item: MediaItem) => {
+  const renderThumbnail = (item: MediaItem, isPriority: boolean = false) => {
     if (item.type === 'image') {
       return (
         <Image
@@ -187,6 +211,7 @@ export default function Gallery() {
           width={600}
           height={400}
           className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+          priority={isPriority} // Control priority with a parameter
         />
       )
     }
@@ -262,23 +287,24 @@ export default function Gallery() {
           Engineering Gallery
         </motion.h2>
 
+        {/* Initial 9 images */}
         <motion.div 
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           variants={staggerChildren}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {displayMedia.map((item, index) => (
+          {galleryMedia.slice(0, 9).map((item, index) => (
             <motion.div
-              key={index}
+              key={`initial-media-${index}`}
               variants={fadeIn}
               whileHover={{ scale: 1.02 }}
               className="cursor-pointer"
               onClick={() => setSelectedMedia(item)}
             >
               <div className="relative group rounded-lg overflow-hidden bg-slate-800 shadow-xl">
-                {renderThumbnail(item)}
+                {renderThumbnail(item, true)} {/* Set priority for initial images */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
                   <p className="text-white p-4 text-sm">{item.caption}</p>
                 </div>
@@ -287,11 +313,42 @@ export default function Gallery() {
           ))}
         </motion.div>
 
+        {/* Separate section for additional images that appears when showAll is true */}
+        {showAll && (
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={staggerChildren}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12"
+          >
+            {galleryMedia.slice(9).map((item, index) => (
+              <motion.div
+                key={`additional-media-${index}`}
+                variants={fadeIn}
+                whileHover={{ scale: 1.02 }}
+                className="cursor-pointer"
+                onClick={() => setSelectedMedia(item)}
+              >
+                <div className="relative group rounded-lg overflow-hidden bg-slate-800 shadow-xl">
+                  {renderThumbnail(item, false)} {/* Don't set priority for additional images */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                    <p className="text-white p-4 text-sm">{item.caption}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
         {/* Show more button - only visible when not showing all images */}
         {!showAll && galleryMedia.length > 9 && (
           <div className="flex justify-center mt-12">
             <button
-              onClick={() => setShowAll(true)}
+              ref={showMoreButtonRef}
+              onClick={() => {
+                console.log('Show more button clicked');
+                setShowAll(true);
+              }}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition duration-300 flex items-center group"
             >
               <span>Show more photos</span>
@@ -299,44 +356,77 @@ export default function Gallery() {
             </button>
           </div>
         )}
+
+        {/* Show less button - only visible when showing all images */}
+        {showAll && (
+          <div className="flex justify-center mt-12">
+            <button
+              onClick={() => {
+                console.log('Show less button clicked');
+                setShowAll(false);
+                // Scroll back to the top of the gallery
+                setTimeout(() => {
+                  const galleryElement = document.getElementById('gallery');
+                  if (galleryElement) {
+                    const yOffset = -100;
+                    const y = galleryElement.getBoundingClientRect().top + window.scrollY + yOffset;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                  }
+                }, 100);
+              }}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition duration-300 flex items-center group"
+            >
+              <span>Show less photos</span>
+              <span className="ml-2 text-xl">↑</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Modal for enlarged media view */}
-      {selectedMedia && (
-        <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedMedia(null)}
-        >
-          <div
-            className="relative max-w-4xl w-full bg-slate-800 rounded-lg overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+      <AnimatePresence>
+        {selectedMedia && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedMedia(null)}
           >
-            <button
-              onClick={() => setSelectedMedia(null)}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-4xl w-full bg-slate-800 rounded-lg overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
             >
-              <svg 
-                className="w-6 h-6" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
+              <button
+                onClick={() => setSelectedMedia(null)}
+                className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M6 18L18 6M6 6l12 12" 
-                />
-              </svg>
-            </button>
-            {renderModalContent(selectedMedia)}
-            <div className="p-4">
-              <h3 className="text-xl font-bold mb-2">{selectedMedia.alt}</h3>
-              <p className="text-gray-300">{selectedMedia.caption}</p>
-            </div>
-          </div>
-        </div>
-      )}
+                <svg 
+                  className="w-6 h-6" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M6 18L18 6M6 6l12 12" 
+                  />
+                </svg>
+              </button>
+              {renderModalContent(selectedMedia)}
+              <div className="p-4">
+                <h3 className="text-xl font-bold mb-2">{selectedMedia.alt}</h3>
+                <p className="text-gray-300">{selectedMedia.caption}</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
