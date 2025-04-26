@@ -289,35 +289,25 @@ export default function Gallery() {
 
         {/* Show more button - only visible when not showing all images */}
         {!showAll && galleryMedia.length > 9 && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-center mt-12"
-          >
+          <div className="flex justify-center mt-12">
             <button
               onClick={() => setShowAll(true)}
-              className="tech-button flex items-center group"
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition duration-300 flex items-center group"
             >
               <span>Show more photos</span>
               <span className="ml-2 text-xl">...</span>
             </button>
-          </motion.div>
+          </div>
         )}
       </div>
 
       {/* Modal for enlarged media view */}
       {selectedMedia && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={() => setSelectedMedia(null)}
         >
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.9 }}
+          <div
             className="relative max-w-4xl w-full bg-slate-800 rounded-lg overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
@@ -344,8 +334,8 @@ export default function Gallery() {
               <h3 className="text-xl font-bold mb-2">{selectedMedia.alt}</h3>
               <p className="text-gray-300">{selectedMedia.caption}</p>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
     </section>
   )
