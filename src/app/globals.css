@@ -5,17 +5,60 @@
 :root {
   --background: 15 23 42; /* slate-900 */
   --foreground: 241 245 249; /* slate-100 */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 15 23 42;
-    --foreground: 241 245 249;
-  }
+  
+  /* Enhanced theme colors */
+  --blue-accent: rgba(59, 130, 246, 0.8); /* blue-500 at 80% opacity */
+  --purple-accent: rgba(139, 92, 246, 0.7); /* purple-500 at 70% opacity */
+  --cyan-accent: rgba(34, 211, 238, 0.6); /* cyan-400 at 60% opacity */
 }
 
 body {
   @apply bg-slate-900 text-slate-100;
+  background: linear-gradient(to bottom, rgb(15, 23, 42), rgb(30, 41, 59), rgb(15, 23, 42));
+  background-size: 100% 400%;
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Grid overlay effect - creates a tech/engineering grid feel */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Particle effects container */
+.particles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  opacity: 0.4;
+}
+
+/* Icon backgrounds container */
+.icon-backgrounds {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  overflow: hidden;
+  opacity: 0.07;
+  pointer-events: none;
 }
 
 /* Smooth scrolling */
@@ -25,7 +68,7 @@ html {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -33,19 +76,230 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-blue-500 rounded-full;
+  @apply bg-blue-500/50 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-blue-600;
+  @apply bg-blue-400/70;
 }
 
-/* Gradient text utility */
+/* Enhanced gradient text utility */
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400;
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, #60a5fa, #a78bfa, #22d3ee);
+  background-size: 200% 200%;
+  animation: subtle-gradient 8s ease infinite;
 }
 
-/* Card hover effect */
+@keyframes subtle-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Card hover effect with tech border */
 .hover-card {
-  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-slate-800/40 border border-slate-700/30 backdrop-blur-sm;
+  position: relative;
+  overflow: hidden;
+}
+
+.hover-card::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+  z-index: -1;
+  transform: scale(1.05);
+  animation: border-flow 4s linear infinite;
+}
+
+@keyframes border-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+/* Section styling */
+.section {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Tech-inspired section overlay */
+.section-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent, rgba(15, 23, 42, 0.3));
+  z-index: -1;
+}
+
+/* Blueprint grid for engineering sections */
+.blueprint-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.4;
+  z-index: -1;
+}
+
+/* Circuit pattern for tech sections */
+.circuit-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10h80v80H10z' fill='none' stroke='%2322D3EE' stroke-width='1'/%3E%3Cpath d='M30 10v20M50 10v30M70 10v20M10 30h20M50 30h40M10 50h30M70 50h20M10 70h20M50 70h20M30 70v20M50 70v20M70 70v20' stroke='%2322D3EE' stroke-width='1'/%3E%3Ccircle cx='30' cy='30' r='3' fill='%2322D3EE'/%3E%3Ccircle cx='50' cy='50' r='3' fill='%2322D3EE'/%3E%3Ccircle cx='70' cy='70' r='3' fill='%2322D3EE'/%3E%3C/svg%3E");
+  z-index: -1;
+}
+
+/* 3D printing layer effect */
+.layer-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  background-image: 
+    repeating-linear-gradient(
+      transparent,
+      transparent 8px,
+      rgba(59, 130, 246, 0.3) 8px,
+      rgba(59, 130, 246, 0.3) 9px
+    );
+  z-index: -1;
+}
+
+/* Navbar styling */
+.navbar {
+  @apply fixed top-0 left-0 right-0 z-50 transition-all duration-500;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.navbar.scrolled {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.nav-link {
+  @apply px-4 py-2 text-gray-300 transition-colors duration-300;
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  @apply bg-blue-400;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover {
+  @apply text-white;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 70%;
+}
+
+.nav-link.active {
+  @apply text-white;
+}
+
+/* Tech-inspired button */
+.tech-button {
+  @apply relative overflow-hidden px-6 py-3 rounded-md text-white font-medium transition-all duration-300;
+  background: linear-gradient(45deg, #1e40af, #3b82f6);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+.tech-button:hover {
+  @apply shadow-lg;
+  background: linear-gradient(45deg, #1e40af, #60a5fa);
+}
+
+.tech-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.tech-button:hover::before {
+  left: 100%;
+}
+
+/* Experience tab styling */
+.experience-tab {
+  @apply px-6 py-3 rounded-md transition-all duration-300 relative overflow-hidden;
+}
+
+.experience-tab-active {
+  @apply bg-blue-600 text-white;
+}
+
+.experience-tab-inactive {
+  @apply bg-slate-800/40 text-gray-300 hover:bg-slate-700/50 hover:text-white;
+}
+
+/* Icon animation */
+@keyframes float-icon {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(5px) rotate(-2deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(1deg);
+  }
+}
+
+.floating-icon {
+  position: absolute;
+  animation: float-icon 20s infinite ease-in-out;
+  opacity: 0.15;
+  filter: drop-shadow(0 0 3px rgba(59, 130, 246, 0.5));
+}
+
+/* Different animation speeds for variety */
+.floating-icon-slow {
+  animation-duration: 30s;
+}
+
+.floating-icon-fast {
+  animation-duration: 15s;
 }
