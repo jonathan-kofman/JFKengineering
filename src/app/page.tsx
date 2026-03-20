@@ -1,13 +1,33 @@
 "use client"
 
 import Image from "next/image"
-// Removed unused Link import
+import dynamic from "next/dynamic"
 import { useState, useEffect, useRef, useMemo } from "react"
 import { motion } from "framer-motion"
-import Gallery from "@/components/gallery"
+import { githubProjects } from "@/content/github-projects"
+
+const Gallery = dynamic(() => import("@/components/gallery"), {
+  loading: () => (
+    <div
+      className="min-h-[240px] flex flex-col items-center justify-center gap-3 py-16 text-slate-500"
+      aria-live="polite"
+      aria-label="Loading gallery"
+    >
+      <div className="h-9 w-9 rounded-full border-2 border-cyan-400/25 border-t-cyan-400 animate-spin" />
+      <span className="text-sm">Loading gallery…</span>
+    </div>
+  ),
+  ssr: false,
+})
 
 // Define types for the tab content
-type TabName = "Rutgers Formula Racing" | "Scarlet Flight" | "AerospaceNU" | "Robodog Project"
+type TabName =
+  | "Applied Materials"
+  | "Northeastern Formula Racing"
+  | "AerospaceNU"
+  | "Robodog Project"
+  | "Scarlet Flight"
+  | "Rutgers Formula Racing"
 
 interface TabContent {
   title: string
@@ -34,12 +54,36 @@ interface BackgroundIcon {
   rotation?: string
 }
 
+const NAV_ITEMS = ["Home", "About", "Experience", "Projects", "Gallery", "Contact"] as const
+
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<TabName>("Rutgers Formula Racing")
+  const [activeTab, setActiveTab] = useState<TabName>("Applied Materials")
   const [activeSection, setActiveSection] = useState("home")
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [reduceMotion, setReduceMotion] = useState(false)
   const particlesRef = useRef<HTMLDivElement>(null)
   const iconsRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const sync = () => setReduceMotion(mq.matches)
+    sync()
+    mq.addEventListener("change", sync)
+    return () => mq.removeEventListener("change", sync)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => {
+      const el = document.documentElement
+      const total = el.scrollHeight - el.clientHeight
+      setScrollProgress(total > 0 ? (el.scrollTop / total) * 100 : 0)
+    }
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   // Wrap backgroundIcons in useMemo to avoid recreating on every render
   const backgroundIcons = useMemo<BackgroundIcon[]>(() => [
@@ -225,7 +269,7 @@ export default function Home() {
       setScrolled(window.scrollY > 50)
       
       // Determine which section is currently in view
-      const sections = ["home", "about", "experience", "gallery", "contact"]
+      const sections = ["home", "about", "experience", "projects", "gallery", "contact"]
       for (const section of sections) {
         const element = document.getElementById(section)
         if (element) {
@@ -242,15 +286,18 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  // Create particles for tech background effect
+  // Create particles for tech background effect (skipped when reduced motion / lighter on small screens)
   useEffect(() => {
     if (!particlesRef.current) return
 
     const container = particlesRef.current
-    container.innerHTML = ''
-    
-    // Create particle elements
-    for (let i = 0; i < 50; i++) {
+    container.innerHTML = ""
+
+    if (reduceMotion) return
+
+    const count = typeof window !== "undefined" && window.innerWidth < 768 ? 28 : 48
+
+    for (let i = 0; i < count; i++) {
       const particle = document.createElement('div')
       
       // Random size between 1-3px
@@ -310,7 +357,7 @@ export default function Home() {
     return () => {
       document.head.removeChild(style)
     }
-  }, [])
+  }, [reduceMotion])
 
   // Create background icons
   useEffect(() => {
@@ -369,37 +416,42 @@ export default function Home() {
 
   // Experience tab content
   const tabContent: TabContents = {
-    "Rutgers Formula Racing": {
-      title: "Aerodynamic Lead",
-      date: "Oct 2020-Aug 2024",
-      content: `While on the team I helped coordinate the aerodynamic design of the cars' many components using
-        SolidWorks and ANSYS to perform lift and drag tests utilizing set parameters which included
-        Angle of Attack, Velocity, Temperature, and Provided load. I also performed ANSYS CFD and FEA
-        over the front/rear wing as well as the front/rear diffusers to create the optimal design with
-        cornering and downforce being the main priorities.`
+    "Applied Materials": {
+      title: "Mechanical Design Engineer (co-op)",
+      date: "May 2025 – Dec 2025",
+      content:
+        "At Applied Materials I delivered mechanical design work for semiconductor capital equipment. I developed and built two ultra-pure helium contamination test stands for cryo-pump supply plumbing, ran Fluidflow analysis on components inside tool fluid routes, and produced wiring schematics technicians used to assemble DI water leak and level sensors in flow loops.",
     },
-    "Scarlet Flight": {
-      title: "Propulsion and Financial Lead",
-      date: "Jun 2023-Aug 2024",
-      content: `Scarlet Flight was my senior design project which I co-led alongside 6 other seniors. On the
-        team I led propulsion analysis which included but wasn't limited to: creating a test stand to
-        hold the rocket body in place to perform thrust testing, optimizing body and nozzle
-        design using SolidWorks and ANSYS simulations for optimal flow, and machining each of the components once we had the optimal design.`
+    "Northeastern Formula Racing": {
+      title: "Team member — multi-subsystem contributions",
+      date: "2024 – Present",
+      content:
+        "While completing my M.Eng. at Northeastern I contribute to Northeastern Formula Racing across structural design, aerodynamics, powertrain integration, and business-side team needs—linking fabrication constraints to on-track performance goals.",
     },
     "AerospaceNU": {
       title: "CNC/CAM and Ablatives Lead",
-      date: "Sep 2024-Present",
-      content: `Leading the design and manufacturing of critical rocket components including bottom and top plates for the injector,
-        nozzle, and combustion chamber. Specialized in CNC machining and CAM programming using
-        SolidWorks and HSMworks on Tormach 1100M CNC.`
+      date: "Sep 2024 – Present",
+      content:
+        "I lead design and manufacturing for critical liquid rocket hardware—bottom and top injector plates, nozzle, and combustion chamber—using CNC machining and CAM in SolidWorks and HSMWorks on a Tormach 1100M.",
     },
     "Robodog Project": {
-      title: "2-stage Coilgun mounted on Robot Dog",
-      date: "Sep 2024-Present",
-      content: `Innovative project combining robotics and electromagnetic propulsion. Designed and
-        implemented a sophisticated control system using Raspberry Pi 5, with custom 3D printed
-        components and advanced power management. Fully designed and manufactured inside of my apartment`
-    }
+      title: "Two-stage coilgun on a legged robot",
+      date: "2024 – Present",
+      content:
+        "Personal R&D merging locomotion and electromagnetic launch: Raspberry Pi 5–based controls, custom 3D-printed mechanical interfaces, and disciplined power management—designed and integrated end to end alongside class and team commitments.",
+    },
+    "Scarlet Flight": {
+      title: "Propulsion and Financial Co-Lead",
+      date: "Jun 2023 – Aug 2024",
+      content:
+        "Scarlet Flight was my Rutgers senior design project with six other seniors. I co-led propulsion and finance: rocket test-stand work, SolidWorks/ANSYS-driven body and nozzle optimization, and machining once the architecture was frozen—supporting expo-ready hardware and documentation.",
+    },
+    "Rutgers Formula Racing": {
+      title: "Aerodynamic Lead · Chassis & fabrication",
+      date: "Oct 2020 – Aug 2024",
+      content:
+        "With Rutgers Formula Racing I served as aerodynamics lead on the 22A and 23A cars—SolidWorks/ANSYS lift–drag campaigns, CFD and FEA on wings and diffusers, and track-focused downforce trade studies. I also supported chassis work and welding, helping connect aero surfaces to a fabrication-ready chassis.",
+    },
   }
 
   // Interface for social links
@@ -407,6 +459,22 @@ export default function Home() {
     icon: string
     link: string
   }
+
+  const skillTags = useMemo(
+    () => [
+      "SolidWorks",
+      "ANSYS CFD / FEA",
+      "Fluidflow",
+      "CNC & CAM (HSMWorks)",
+      "Tormach 1100M",
+      "Wiring & sensors",
+      "3D printing",
+      "Raspberry Pi / controls",
+      "Python",
+      "FE Mechanical (EIT)",
+    ],
+    []
+  )
 
   const socialLinks: SocialLink[] = [
     {
@@ -429,6 +497,23 @@ export default function Home() {
 
   return (
     <div className="font-sans text-gray-100 min-h-screen">
+      <div
+        className="fixed top-0 left-0 right-0 z-[100] h-1 pointer-events-none bg-slate-900/80"
+        aria-hidden
+      >
+        <div
+          className="h-full bg-gradient-to-r from-blue-500 via-violet-500 to-cyan-400 transition-[width] duration-150 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
+      <a
+        href="#main"
+        className="fixed left-4 top-[-100px] z-[110] rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-white shadow-lg ring-2 ring-cyan-400 transition-[top] duration-200 focus:top-20 focus:outline-none"
+      >
+        Skip to main content
+      </a>
+
       {/* Tech background effects */}
       <div className="particles-container" ref={particlesRef}></div>
       
@@ -461,19 +546,48 @@ export default function Home() {
         </div>
         
         {/* Navigation */}
-        <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-          <div className="container mx-auto px-4 py-4">
-            <ul className="flex justify-center space-x-4">
-              {["Home", "About", "Experience", "Gallery", "Contact"].map((item) => (
-                <li key={item}>
-                  <a 
-                    href={`#${item.toLowerCase()}`} 
-                    className={`nav-link ${activeSection === item.toLowerCase() ? 'active' : ''}`}
-                  >
-                    {item}
-                  </a>
-                </li>
-              ))}
+        <nav
+          className={`navbar ${scrolled ? "scrolled" : ""}`}
+          aria-label="Primary"
+        >
+          <div className="page-container py-3 md:py-4 relative">
+            <button
+              type="button"
+              className="absolute right-3 top-3 z-10 md:hidden inline-flex items-center justify-center rounded-lg border border-slate-600/80 p-2.5 text-slate-200 hover:bg-slate-800/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+              aria-expanded={menuOpen}
+              aria-controls="site-nav-links"
+              onClick={() => setMenuOpen((o) => !o)}
+            >
+              <span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+                {menuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+            <ul
+              id="site-nav-links"
+              className={`flex flex-col items-center gap-1 pb-2 md:flex-row md:justify-center md:gap-2 md:space-x-2 md:pb-0 ${
+                menuOpen ? "flex pt-12" : "hidden md:flex"
+              }`}
+            >
+              {NAV_ITEMS.map((item) => {
+                const id = item.toLowerCase()
+                return (
+                  <li key={item}>
+                    <a
+                      href={`#${id}`}
+                      className={`nav-link ${activeSection === id ? "active" : ""}`}
+                      aria-current={activeSection === id ? "true" : undefined}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item}
+                    </a>
+                  </li>
+                )
+              })}
             </ul>
           </div>
         </nav>
@@ -483,36 +597,39 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="text-center z-10 px-4"
+          className="text-center z-10 page-container max-w-4xl"
         >
-          <h1 className="text-6xl md:text-7xl font-bold mb-4 gradient-text">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl mb-4 gradient-text">
             Jonathan Kofman
           </h1>
-          <p className="text-2xl text-gray-300 mb-8">
-            Aerospace Engineer
+          <p className="text-xl text-slate-200 sm:text-2xl font-medium mb-3">
+            Aerospace &amp; manufacturing engineer
+          </p>
+          <p className="text-slate-400 mb-10 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+            Co-op mechanical design at Applied Materials; Northeastern M.Eng. student; Formula, liquid rocketry, and bench robotics—from CAD and analysis to machined hardware.
           </p>
           <a 
             href="#about"
-            className="tech-button"
+            className="tech-button inline-flex"
           >
-            Discover More
+            Discover more
           </a>
         </motion.div>
       </header>
 
-      <main>
+      <main id="main">
         {/* About Section */}
-        <section id="about" className="py-24 section">
+        <section id="about" className="section-padding section">
           <div className="section-overlay"></div>
           <div className="blueprint-grid"></div>
           
-          <div className="max-w-6xl mx-auto px-4">
+          <div className="page-container">
             <motion.div 
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerChildren}
-              className="flex flex-col md:flex-row gap-12 items-center"
+              className="flex flex-col md:flex-row gap-10 md:gap-14 lg:gap-16 items-start md:items-center"
             >
               <motion.div 
                 variants={fadeIn}
@@ -548,42 +665,58 @@ export default function Home() {
 
               <motion.div 
                 variants={fadeIn}
-                className="md:w-2/3"
+                className="md:w-2/3 w-full min-w-0"
               >
-                <h2 className="text-4xl font-bold mb-6 gradient-text">
-                  About Me
-                </h2>
-                <p className="text-gray-300 mb-6 text-lg">
-                  Hi, I&apos;m Jonathan Kofman, a master&apos;s student at Northeastern University studying Advanced and Intelligent Manufacturing. With an undergraduate degree in Aerospace engineering, I combine mechanical, electrical, and industrial engineering expertise.
+                <div className="section-title-block">
+                  <p className="section-kicker">Profile</p>
+                  <h2 className="text-3xl sm:text-4xl font-bold gradient-text">
+                    About me
+                  </h2>
+                  <p className="section-lead max-w-none">
+                    M.Eng. candidate in Advanced &amp; Intelligent Manufacturing at Northeastern (2024–2026), building on a B.E. in aerospace engineering from Rutgers. I turn models and simulations into hardware—test rigs, race cars, rockets, and robots.
+                  </p>
+                </div>
+                <p className="text-slate-300 mb-8 text-base sm:text-lg leading-relaxed max-w-prose">
+                  Hi, I&apos;m Jonathan Kofman. I&apos;m motivated by internships and full-time roles where I can keep growing in aerospace manufacturing, CAD-heavy mechanical design, and electromechanical systems. Recent work spans semiconductor test hardware, student Formula, liquid-engine machining, and personal R&amp;D builds.
                 </p>
 
-                <div className="space-y-4 mb-8">
+                <ul className="space-y-4 mb-8 list-none pl-0 max-w-prose" aria-label="Highlights">
                   {[
-                    "Worked on the 22A and 23A models of the Rutgers' Formula Racing car as the aerodynamics lead",
-                    "Being in charge of CNC and CAM designs for heat sink and ablative engines for Northeastern Aerospace Liquid Rocket Team",
-                    "Solo designing and building a 2 stage mountable coilgun with a robot dog for navigation",
-                    "Multi-stage pressurized water rocket for senior design project with ambition to break world record",
-                    "Passed FE Mechanical Engineering Exam"
+                    "Mechanical design co-op at Applied Materials: ultra-pure helium contamination test stands for cryo pump supply lines; Fluidflow analysis; wiring schematics for DI water leak/level sensors in flow loops",
+                    "Northeastern Formula Racing — structural, aerodynamics, powertrain, and business contributions while in graduate school",
+                    "CNC/CAM and ablatives lead with AerospaceNU on liquid rocket injector, nozzle, and chamber hardware",
+                    "Personal build: two-stage coilgun integrated with a legged robot (controls, power, 3D-printed interfaces)",
+                    "Scarlet Flight capstone co-lead (propulsion & finance); Rutgers Formula aero lead on 22A/23A plus chassis and welding support",
+                    "Projects: adjustable climbing hangboard with an in-place pulley loading system; multi-stage water rocket (CAD/ANSYS/machining) aimed at an altitude-record class goal",
+                    "Open source on GitHub — e.g. aria-auto-belay (STM32, SimpleFOC, ESP32-S3, Edge Impulse), this portfolio, and several Vercel-hosted apps",
+                    "FE Mechanical passed (EIT)",
                   ].map((item, index) => (
-                    <motion.div
+                    <li
                       key={index}
-                      variants={{
-                        hidden: { opacity: 0, x: -20 },
-                        visible: { opacity: 1, x: 0 }
-                      }}
-                      className="flex items-center space-x-3"
+                      className="flex items-start gap-3 text-slate-300 leading-relaxed"
                     >
-                      <div className="h-2 w-2 bg-blue-400 rounded-full" />
-                      <p className="text-gray-300">{item}</p>
-                    </motion.div>
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" aria-hidden />
+                      <span>{item}</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
+
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+                  Tools &amp; focus areas
+                </p>
+                <ul className="flex flex-wrap gap-2 mb-10" aria-label="Skills and tools">
+                  {skillTags.map((tag) => (
+                    <li key={tag}>
+                      <span className="skill-pill">{tag}</span>
+                    </li>
+                  ))}
+                </ul>
 
                 <a
                   href="/assets/jon-kofman-resume.pdf"
-                  className="tech-button"
+                  className="tech-button inline-flex items-center gap-2"
                 >
-                  View Resume
+                  View resume
                 </a>
               </motion.div>
             </motion.div>
@@ -591,26 +724,32 @@ export default function Home() {
         </section>
 
         {/* Experience Section */}
-        <section id="experience" className="py-24 section">
+        <section id="experience" className="section-padding section">
           <div className="section-overlay"></div>
           <div className="layer-pattern"></div>
           
-          <div className="container mx-auto px-4">
-            <motion.h2 
+          <div className="page-container">
+            <motion.header 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-4xl font-bold mb-12 text-center gradient-text"
+              className="text-center section-title-block max-w-3xl mx-auto"
             >
-              Experience
-            </motion.h2>
+              <p className="section-kicker">Work &amp; projects</p>
+              <h2 className="text-3xl sm:text-4xl font-bold gradient-text">
+                Experience
+              </h2>
+              <p className="section-lead mx-auto">
+                Industry co-op, graduate/undergraduate race teams, aerospace club machining, and personal R&amp;D—open a tab for scope and tooling.
+              </p>
+            </motion.header>
 
-            <div className="flex flex-col md:flex-row gap-8 mt-4">
+            <div className="flex flex-col md:flex-row gap-10 lg:gap-14">
               <div className="md:w-1/3">
                 <div className="rounded-lg overflow-hidden shadow-md relative group">
                   <Image
                     src="/assets/scarlet-flight.png"
-                    alt="Engineering Experience"
+                    alt="Jonathan Kofman — Formula, rocketry, and engineering project work"
                     width={672}
                     height={504}
                     className="rounded-lg object-cover w-full h-auto"
@@ -631,87 +770,229 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="md:w-2/3">
-                <div className="flex flex-wrap gap-4 mb-8">
-                  {(Object.keys(tabContent) as TabName[]).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`experience-tab ${
-                        activeTab === tab
-                          ? "experience-tab-active"
-                          : "experience-tab-inactive"
-                      }`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
+              <div className="md:w-2/3 w-full min-w-0">
+                <div
+                  className="flex flex-wrap justify-center md:justify-start gap-2 sm:gap-3 mb-8"
+                  role="tablist"
+                  aria-label="Experience by team or project"
+                >
+                  {(Object.keys(tabContent) as TabName[]).map((tab) => {
+                    const selected = activeTab === tab
+                    return (
+                      <button
+                        key={tab}
+                        type="button"
+                        role="tab"
+                        id={`tab-${tab.replace(/\s+/g, "-")}`}
+                        aria-selected={selected}
+                        aria-controls="experience-panel"
+                        tabIndex={selected ? 0 : -1}
+                        onClick={() => setActiveTab(tab)}
+                        onKeyDown={(e) => {
+                          const keys = Object.keys(tabContent) as TabName[]
+                          const i = keys.indexOf(tab)
+                          if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                            e.preventDefault()
+                            const next = keys[(i + 1) % keys.length]
+                            setActiveTab(next)
+                            document.getElementById(`tab-${next.replace(/\s+/g, "-")}`)?.focus()
+                          } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                            e.preventDefault()
+                            const next = keys[(i - 1 + keys.length) % keys.length]
+                            setActiveTab(next)
+                            document.getElementById(`tab-${next.replace(/\s+/g, "-")}`)?.focus()
+                          } else if (e.key === "Home") {
+                            e.preventDefault()
+                            const next = keys[0]
+                            setActiveTab(next)
+                            document.getElementById(`tab-${next.replace(/\s+/g, "-")}`)?.focus()
+                          } else if (e.key === "End") {
+                            e.preventDefault()
+                            const next = keys[keys.length - 1]
+                            setActiveTab(next)
+                            document.getElementById(`tab-${next.replace(/\s+/g, "-")}`)?.focus()
+                          }
+                        }}
+                        className={`experience-tab ${
+                          selected ? "experience-tab-active" : "experience-tab-inactive"
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    )
+                  })}
                 </div>
 
                 <motion.div 
                   key={activeTab}
+                  id="experience-panel"
+                  role="tabpanel"
+                  aria-labelledby={`tab-${activeTab.replace(/\s+/g, "-")}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                  className="hover-card p-6 rounded-lg"
+                  transition={{ duration: reduceMotion ? 0 : 0.45 }}
+                  className="hover-card p-6 md:p-8 rounded-xl"
                 >
-                  <h3 className="text-xl font-bold mb-2 text-white">
+                  <h3 className="text-xl md:text-2xl font-bold text-white leading-snug mb-3">
                     {tabContent[activeTab].title}
                   </h3>
-                  <p className="text-gray-400 mb-4">{tabContent[activeTab].date}</p>
-                  <p className="text-gray-300">{tabContent[activeTab].content}</p>
+                  <p className="text-xs sm:text-sm font-medium uppercase tracking-wider text-cyan-400/90 mb-4">
+                    {tabContent[activeTab].date}
+                  </p>
+                  <p className="text-slate-300 leading-relaxed text-base md:text-lg">
+                    {tabContent[activeTab].content}
+                  </p>
                 </motion.div>
               </div>
             </div>
           </div>
         </section>
 
+        {/* GitHub / open-source projects */}
+        <section id="projects" className="section-padding section">
+          <div className="section-overlay" />
+          <div className="blueprint-grid" />
+          <div className="page-container">
+            <motion.header
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-center section-title-block max-w-3xl mx-auto"
+            >
+              <p className="section-kicker">Code</p>
+              <h2 className="text-3xl sm:text-4xl font-bold gradient-text">
+                GitHub projects
+              </h2>
+              <p className="section-lead mx-auto">
+                Recent public repositories — embedded climbing tech, this site, and several client / product web apps.
+              </p>
+            </motion.header>
+
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.08 }}
+              variants={staggerChildren}
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6"
+            >
+              {githubProjects.map((project) => (
+                <motion.article
+                  key={project.name}
+                  variants={fadeIn}
+                  className="hover-card flex flex-col rounded-xl p-5 md:p-6 h-full"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <h3 className="text-base font-semibold text-white font-mono leading-snug break-all">
+                      {project.name}
+                    </h3>
+                    {project.language ? (
+                      <span className="text-xs text-slate-500 shrink-0 tabular-nums">
+                        {project.language}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="text-slate-400 text-sm leading-relaxed flex-1 mb-5">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                    <a
+                      href={project.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
+                    >
+                      <i className="fab fa-github" aria-hidden />
+                      Repository
+                    </a>
+                    {project.homepage ? (
+                      <a
+                        href={project.homepage}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 transition-colors font-medium"
+                      >
+                        Live site
+                        <span aria-hidden>↗</span>
+                      </a>
+                    ) : null}
+                  </div>
+                </motion.article>
+              ))}
+            </motion.div>
+
+            <p className="text-center mt-10 md:mt-12 text-slate-500 text-sm">
+              <a
+                href="https://github.com/jonathan-kofman?tab=repositories"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-400 hover:text-cyan-400 transition-colors inline-flex items-center gap-2"
+              >
+                <i className="fab fa-github" aria-hidden />
+                View all repositories on GitHub
+              </a>
+            </p>
+          </div>
+        </section>
+
         {/* Gallery Section */}
-        <section id="gallery" className="section">
+        <section id="gallery" className="section-padding section">
           <div className="section-overlay"></div>
           <div className="circuit-pattern"></div>
           
           <Gallery />
         </section>
 
-
         {/* Contact Section */}
-        <section id="contact" className="py-24 section">
+        <section id="contact" className="section-padding section">
           <div className="section-overlay"></div>
           <div className="blueprint-grid"></div>
           
-          <div className="container mx-auto px-4 text-center">
-            <motion.h2 
+          <div className="page-container text-center">
+            <motion.header 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-4xl font-bold mb-12 gradient-text"
+              className="section-title-block max-w-2xl mx-auto"
             >
-              Contact Links
-            </motion.h2>
+              <p className="section-kicker">Let&apos;s connect</p>
+              <h2 className="text-3xl sm:text-4xl font-bold gradient-text">
+                Contact
+              </h2>
+              <p className="section-lead mx-auto">
+                Internships, full-time mechanical/aerospace roles, or project collaboration—here&apos;s how to reach me.
+              </p>
+            </motion.header>
 
-            {/* Added Contact Info Block */}
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerChildren}
-              className="max-w-2xl mx-auto mb-12 text-gray-300"
+              className="max-w-lg mx-auto mb-12"
             >
-              <motion.div variants={fadeIn} className="mb-4">
-                <div className="flex items-center justify-center space-x-2 mb-2">
-                  <i className="fas fa-envelope text-blue-400"></i>
-                  <p><a href="mailto:jonkofm@hotmail.com" className="hover:text-blue-400 transition-colors">jonkofm@hotmail.com</a></p>
-                </div>
-                <div className="flex items-center justify-center space-x-2 mb-2">
-                  <i className="fas fa-envelope-open text-blue-400"></i>
-                  <p><a href="mailto:jfkengineeringcswp@gmail.com" className="hover:text-blue-400 transition-colors">jfkengineeringcswp@gmail.com</a></p>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <i className="fas fa-phone text-blue-400"></i>
-                  <p><a href="tel:9087988082" className="hover:text-blue-400 transition-colors">(908)-798-8082</a></p>
-                </div>
+              <motion.div variants={fadeIn} className="contact-card space-y-4 text-slate-300">
+                <a
+                  href="mailto:jonkofm@hotmail.com"
+                  className="flex items-start gap-3 rounded-lg p-2 -m-2 hover:bg-slate-700/30 transition-colors text-left break-all sm:break-normal"
+                >
+                  <i className="fas fa-envelope text-cyan-400 mt-1 shrink-0" aria-hidden />
+                  <span className="font-medium text-slate-100 hover:text-cyan-300 transition-colors">jonkofm@hotmail.com</span>
+                </a>
+                <a
+                  href="mailto:jfkengineeringcswp@gmail.com"
+                  className="flex items-start gap-3 rounded-lg p-2 -m-2 hover:bg-slate-700/30 transition-colors text-left break-all"
+                >
+                  <i className="fas fa-envelope-open text-cyan-400 mt-1 shrink-0" aria-hidden />
+                  <span className="font-medium text-slate-100 hover:text-cyan-300 transition-colors">jfkengineeringcswp@gmail.com</span>
+                </a>
+                <a
+                  href="tel:9087988082"
+                  className="flex items-center gap-3 rounded-lg p-2 -m-2 hover:bg-slate-700/30 transition-colors text-left"
+                >
+                  <i className="fas fa-phone text-cyan-400 shrink-0" aria-hidden />
+                  <span className="font-medium text-slate-100 hover:text-cyan-300 transition-colors">(908) 798-8082</span>
+                </a>
               </motion.div>
             </motion.div>
 
@@ -720,7 +1001,7 @@ export default function Home() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerChildren}
-              className="flex justify-center space-x-8"
+              className="flex flex-wrap justify-center gap-x-8 gap-y-6"
             >
               {socialLinks.map((social) => (
                 <motion.a
@@ -743,12 +1024,32 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-slate-900/50 text-gray-300 py-8 text-center border-t border-slate-800/20">
-        <div className="container mx-auto">
+      <footer className="bg-slate-900/50 text-slate-400 py-10 text-center border-t border-slate-800/30">
+        <div className="page-container max-w-2xl">
           <p>© {new Date().getFullYear()} Jonathan Kofman. All rights reserved.</p>
-          
-          {/* Tech footer decorative element */}
-          <div className="flex justify-center mt-4">
+          <p className="mt-4 text-sm text-slate-500 leading-relaxed">
+            This site uses{" "}
+            <a
+              href="https://policies.google.com/technologies/cookies"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-400 underline underline-offset-2 hover:text-cyan-400 transition-colors"
+            >
+              Google Analytics
+            </a>
+            , which may set cookies to measure traffic. See{" "}
+            <a
+              href="https://policies.google.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-400 underline underline-offset-2 hover:text-cyan-400 transition-colors"
+            >
+              Google&apos;s Privacy Policy
+            </a>{" "}
+            for how Google handles data.
+          </p>
+
+          <div className="flex justify-center mt-6">
             <div className="w-40 h-2 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"></div>
               <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-transparent to-blue-400/50 animate-pulse"></div>

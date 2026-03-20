@@ -61,9 +61,16 @@ body::before {
   pointer-events: none;
 }
 
-/* Smooth scrolling */
+/* Smooth scrolling + offset for fixed navbar */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 /* Custom scrollbar */
@@ -227,6 +234,48 @@ html {
   @apply text-white;
 }
 
+.nav-link:focus-visible,
+.experience-tab:focus-visible,
+.tech-button:focus-visible {
+  outline: 2px solid rgb(34 211 238);
+  outline-offset: 3px;
+}
+
+/* Section title block: kicker + headline + lead */
+.section-kicker {
+  @apply text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400/90 mb-3;
+}
+
+.section-lead {
+  @apply text-lg text-slate-400 max-w-2xl mt-4 leading-relaxed;
+}
+
+.skill-pill {
+  @apply inline-flex items-center rounded-full border border-slate-600/60 bg-slate-800/50 px-3 py-1.5 text-sm text-slate-200 backdrop-blur-sm transition-colors duration-200 hover:border-cyan-500/40 hover:bg-slate-800/80;
+}
+
+/* Page layout: one width + horizontal padding for all sections */
+.page-container {
+  @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section-padding {
+  @apply py-20 md:py-28;
+}
+
+/* Title stack: consistent gaps under section headers */
+.section-title-block {
+  @apply space-y-3 mb-10 md:mb-14;
+}
+
+.section-title-block .section-lead {
+  @apply mt-0;
+}
+
+.contact-card {
+  @apply rounded-xl border border-slate-700/50 bg-slate-800/30 backdrop-blur-sm px-5 py-6 sm:px-8 text-left shadow-lg shadow-slate-950/20;
+}
+
 /* Tech-inspired button */
 .tech-button {
   @apply relative overflow-hidden px-6 py-3 rounded-md text-white font-medium transition-all duration-300;
@@ -261,7 +310,7 @@ html {
 
 /* Experience tab styling */
 .experience-tab {
-  @apply px-6 py-3 rounded-md transition-all duration-300 relative overflow-hidden;
+  @apply px-4 py-2.5 text-sm text-center rounded-lg transition-all duration-300 relative overflow-hidden md:px-5 md:py-3 md:text-base;
 }
 
 .experience-tab-active {
@@ -302,4 +351,23 @@ html {
 
 .floating-icon-fast {
   animation-duration: 15s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-text {
+    animation: none;
+    background-position: 0% 50%;
+  }
+
+  .hover-card::before {
+    animation: none;
+  }
+
+  .floating-icon {
+    animation: none;
+  }
+
+  .particles-container {
+    opacity: 0.15;
+  }
 }

@@ -232,12 +232,6 @@ export default function Gallery() {
   const [showAll, setShowAll] = useState(false)
   const showMoreButtonRef = useRef<HTMLButtonElement>(null)
 
-  // Log state changes for debugging
-  useEffect(() => {
-    console.log('showAll state changed:', showAll)
-    console.log('Number of items shown:', showAll ? galleryMedia.length : 12)
-  }, [showAll])
-
   // Scroll to newly loaded images when showing all
   useEffect(() => {
     if (showAll && showMoreButtonRef.current) {
@@ -279,6 +273,15 @@ export default function Gallery() {
       [videoSrc]: thumbnail
     }))
   }
+
+  useEffect(() => {
+    if (!selectedMedia) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedMedia(null)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [selectedMedia])
 
   const renderThumbnail = (item: MediaItem, isPriority: boolean = false) => {
     if (item.type === 'image') {
@@ -328,6 +331,33 @@ export default function Gallery() {
     )
   }
 
+  const openItem = (item: MediaItem) => setSelectedMedia(item)
+
+  const renderGalleryTile = (
+    item: MediaItem,
+    index: number,
+    isPriority: boolean,
+    keyPrefix: string
+  ) => (
+    <motion.button
+      key={`${keyPrefix}-${index}`}
+      type="button"
+      variants={fadeIn}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.99 }}
+      className="group w-full text-left rounded-lg cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+      onClick={() => openItem(item)}
+      aria-label={`Open: ${item.caption}`}
+    >
+      <div className="relative rounded-lg overflow-hidden bg-slate-800 shadow-xl ring-0 transition-shadow duration-300 group-focus-within:ring-2 group-focus-within:ring-cyan-400/50">
+        {renderThumbnail(item, isPriority)}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 flex items-end">
+          <p className="text-white p-4 text-sm">{item.caption}</p>
+        </div>
+      </div>
+    </motion.button>
+  )
+
   const renderModalContent = (item: MediaItem) => {
     if (item.type === 'image') {
       return (
@@ -354,16 +384,22 @@ export default function Gallery() {
   }
 
   return (
-    <section id="gallery" className="py-24 bg-slate-900">
-      <div className="container mx-auto px-4">
-        <motion.h2 
+    <div className="bg-slate-900/25">
+      <div className="page-container">
+        <motion.header
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-4xl font-bold mb-12 pt-8 text-center gradient-text"
+          className="text-center section-title-block max-w-2xl mx-auto"
         >
-          Engineering Gallery
-        </motion.h2>
+          <p className="section-kicker">Media</p>
+          <h2 className="text-3xl sm:text-4xl font-bold gradient-text">
+            Engineering gallery
+          </h2>
+          <p className="section-lead mx-auto">
+            Fabrication, hot fires, Formula and rocket-team milestones, and flight/testing clips—select a tile or press Enter to enlarge.
+          </p>
+        </motion.header>
 
         {/* Initial 12 images */}
         <motion.div 
@@ -371,24 +407,11 @@ export default function Gallery() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
           variants={staggerChildren}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6"
         >
-          {galleryMedia.slice(0, 12).map((item, index) => (
-            <motion.div
-              key={`initial-media-${index}`}
-              variants={fadeIn}
-              whileHover={{ scale: 1.02 }}
-              className="cursor-pointer"
-              onClick={() => setSelectedMedia(item)}
-            >
-              <div className="relative group rounded-lg overflow-hidden bg-slate-800 shadow-xl">
-                {renderThumbnail(item, true)} {/* Set priority for initial images */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                  <p className="text-white p-4 text-sm">{item.caption}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+          {galleryMedia.slice(0, 12).map((item, index) =>
+            renderGalleryTile(item, index, true, "initial-media")
+          )}
         </motion.div>
 
         {/* Separate section for additional images that appears when showAll is true */}
@@ -397,65 +420,52 @@ export default function Gallery() {
             initial="hidden"
             animate="visible"
             variants={staggerChildren}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 mt-10 md:mt-12"
           >
-            {galleryMedia.slice(12).map((item, index) => (
-              <motion.div
-                key={`additional-media-${index}`}
-                variants={fadeIn}
-                whileHover={{ scale: 1.02 }}
-                className="cursor-pointer"
-                onClick={() => setSelectedMedia(item)}
-              >
-                <div className="relative group rounded-lg overflow-hidden bg-slate-800 shadow-xl">
-                  {renderThumbnail(item, false)} {/* Don't set priority for additional images */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                    <p className="text-white p-4 text-sm">{item.caption}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+            {galleryMedia.slice(12).map((item, index) =>
+              renderGalleryTile(item, index, false, "additional-media")
+            )}
           </motion.div>
         )}
 
         {/* Show more button - only visible when not showing all images */}
         {!showAll && galleryMedia.length > 12 && (
-          <div className="flex justify-center mt-12">
+          <div className="flex justify-center mt-10 md:mt-12">
             <button
               ref={showMoreButtonRef}
-              onClick={() => {
-                console.log('Show more button clicked');
-                setShowAll(true);
-              }}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition duration-300 flex items-center group"
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="tech-button inline-flex items-center gap-2"
             >
-              <span>Show more photos</span>
-              <span className="ml-2 text-xl">...</span>
+              <span>Show more</span>
+              <span className="text-lg leading-none" aria-hidden>↓</span>
             </button>
           </div>
         )}
 
         {/* Show less button - only visible when showing all images */}
         {showAll && (
-          <div className="flex justify-center mt-12">
+          <div className="flex justify-center mt-10 md:mt-12">
             <button
+              type="button"
               onClick={() => {
-                console.log('Show less button clicked');
                 setShowAll(false);
-                // Scroll back to the top of the gallery
                 setTimeout(() => {
-                  const galleryElement = document.getElementById('gallery');
+                  const galleryElement = document.getElementById("gallery");
                   if (galleryElement) {
                     const yOffset = -100;
-                    const y = galleryElement.getBoundingClientRect().top + window.scrollY + yOffset;
-                    window.scrollTo({ top: y, behavior: 'smooth' });
+                    const y =
+                      galleryElement.getBoundingClientRect().top +
+                      window.scrollY +
+                      yOffset;
+                    window.scrollTo({ top: y, behavior: "smooth" });
                   }
                 }, 100);
               }}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition duration-300 flex items-center group"
+              className="tech-button inline-flex items-center gap-2"
             >
-              <span>Show less photos</span>
-              <span className="ml-2 text-xl">↑</span>
+              <span>Show less</span>
+              <span className="text-lg leading-none" aria-hidden>↑</span>
             </button>
           </div>
         )}
@@ -469,18 +479,24 @@ export default function Gallery() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            role="presentation"
             onClick={() => setSelectedMedia(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative max-w-4xl w-full bg-slate-800 rounded-lg overflow-hidden"
+              className="relative max-w-4xl w-full bg-slate-800 rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10"
+              role="dialog"
+              aria-modal="true"
+              aria-label={selectedMedia.caption}
               onClick={(e) => e.stopPropagation()}
             >
               <button
+                type="button"
                 onClick={() => setSelectedMedia(null)}
-                className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+                className="absolute top-4 right-4 rounded-lg bg-slate-900/70 p-2 text-white hover:bg-slate-900 z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400"
+                aria-label="Close viewer"
               >
                 <svg 
                   className="w-6 h-6" 
@@ -497,14 +513,14 @@ export default function Gallery() {
                 </svg>
               </button>
               {renderModalContent(selectedMedia)}
-              <div className="p-4">
-                <h3 className="text-xl font-bold mb-2">{selectedMedia.alt}</h3>
-                <p className="text-gray-300">{selectedMedia.caption}</p>
+              <div className="p-4 md:p-6 border-t border-slate-700/80">
+                <h3 className="text-lg font-semibold text-white mb-1">{selectedMedia.alt}</h3>
+                <p className="text-slate-300 text-sm md:text-base leading-relaxed">{selectedMedia.caption}</p>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </div>
   )
 }
